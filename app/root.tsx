@@ -7,35 +7,25 @@ import {
   Meta,
   Outlet,
   Scripts,
-  useTransition,
+  useNavigation,
   useFetchers,
   useLoaderData,
   ScrollRestoration,
+  useCatch,
 } from "@remix-run/react";
 import { Toaster } from "sonner";
-import { mainnet, createClient, configureChains, WagmiConfig } from "wagmi";
-import { optimism, arbitrum, polygon, arbitrumGoerli } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-import {
-  connectorsForWallets,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
 
 import NProgress from "nprogress";
 
-import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import styles from "./styles/tailwind.css";
 import nProgressStyles from "./styles/nprogress.css";
 
 import type { Env } from "./types";
+import { Layout } from "./components/Layout";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "stylesheet", href: nProgressStyles },
-  { rel: "stylesheet", href: rainbowStyles },
 ];
 
 export const meta: MetaFunction = () => ({
@@ -69,38 +59,7 @@ export const loader = async () => {
 export default function App() {
   const { ENV } = useLoaderData<typeof loader>();
 
-  const [{ client, chains }] = useState(() => {
-    const testChains =
-      ENV.PUBLIC_ENABLE_TESTNETS === "true" ? [arbitrumGoerli] : [];
-
-    const { chains, provider } = configureChains(
-      // Configure this to chains you want
-      [mainnet, optimism, polygon, arbitrum, ...testChains],
-      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
-    );
-
-    const { wallets } = getDefaultWallets({
-      appName: "Template App",
-      chains,
-    });
-
-    const connectors = connectorsForWallets([
-      ...wallets,
-      {
-        groupName: "Others",
-        wallets: [trustWallet({ chains }), ledgerWallet({ chains })],
-      },
-    ]);
-
-    const client = createClient({
-      autoConnect: true,
-      connectors,
-      provider,
-    });
-
-    return { client, chains };
-  });
-  const transition = useTransition();
+  const transition = useNavigation();
 
   const fetchers = useFetchers();
 
@@ -123,22 +82,40 @@ export default function App() {
   }, [state, transition.state]);
 
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="antialiased">
-        <WagmiConfig client={client}>
-          <RainbowKitProvider chains={chains}>
-            <Outlet />
-          </RainbowKitProvider>
-        </WagmiConfig>
+      <body className="h-full bg-honey-50 antialiased">
+        <Outlet />
         <Toaster richColors />
 
         <Scripts />
         <ScrollRestoration />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  return (
+    <html className="h-full">
+      <head>
+        <title>Oops!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body className="h-full bg-honey-50 antialiased">
+        <Layout>
+          <div className="container flex flex-1 items-center justify-center">
+            <h1 className="text-4xl font-bold">Oops!</h1>
+            <p className="text-xl">{caught.data.message}</p>
+          </div>
+        </Layout>
       </body>
     </html>
   );

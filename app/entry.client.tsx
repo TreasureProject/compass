@@ -1,12 +1,6 @@
 import { RemixBrowser } from "@remix-run/react";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { Buffer } from "buffer-polyfill";
-
-// Polyfills for connectors that use QR codes
-window.global = window.global ?? window;
-window.Buffer = window.Buffer ?? Buffer;
-window.process = window.process ?? { env: {} };
 
 function hydrate() {
   startTransition(() => {

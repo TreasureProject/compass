@@ -1,8 +1,8 @@
 export type EnvVar =
-  | "PUBLIC_ALCHEMY_KEY"
-  | "PUBLIC_NODE_ENV"
-  | "PUBLIC_ENABLE_TESTNETS"
-  | "EXCHANGE_ENDPOINT";
+  | "CONTENTFUL_ENDPOINT"
+  | "CONTENTFUL_DELIVERY_TOKEN"
+  | "CONTENTFUL_MANAGEMENT_TOKEN"
+  | "CONTENTFUL_SPACE_ID";
 
 export type Env = {
   [key in EnvVar]: string;

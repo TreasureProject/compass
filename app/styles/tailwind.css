@@ -2,3 +2,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.latestPost {
+  grid-template-areas:
+    "image image title title"
+    "image image excerpt excerpt"
+    "image image author author"
+    "image image readMore readMore";
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.post {
+  grid-template-areas:
+    "image image"
+    "image image"
+    "title title"
+    "author author";
+  display: grid;
+}

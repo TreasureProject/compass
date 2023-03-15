@@ -1,7 +1,10 @@
 overwrite: true
 generates:
-  ./app/graphql/exchange.generated.ts:
-    schema: ${EXCHANGE_ENDPOINT}
+  ./app/graphql/app.generated.ts:
+    schema:
+      - ${CONTENTFUL_ENDPOINT}:
+          headers:
+            Authorization: Bearer ${CONTENTFUL_DELIVERY_TOKEN}
     documents: "./app/graphql/app.queries.ts"
     plugins:
       - "typescript"
