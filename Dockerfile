@@ -23,6 +23,14 @@ COPY --from=deps /app/node_modules /app/node_modules
 ADD package.json package-lock.json ./
 RUN npm prune --production
 
+ARG CONTENTFUL_ENDPOINT
+ENV CONTENTFUL_ENDPOINT ${CONTENTFUL_ENDPOINT}
+
+ARG CONTENTFUL_DELIVERY_TOKEN
+ENV CONTENTFUL_DELIVERY_TOKEN ${CONTENTFUL_DELIVERY_TOKEN}
+
+RUN npm run codegen
+
 # Build the app
 FROM base as build
 

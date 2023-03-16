@@ -9,7 +9,6 @@
     "deploy": "fly deploy --remote-only",
     "dev:remix": "remix dev",
     "dev": "npm-run-all --parallel dev:*",
-    "postinstall": "npm run codegen",
     "start": "remix-serve build",
     "typecheck": "tsc",
     "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
