@@ -25,8 +25,12 @@ const ITEMS_FRAGMENT = gql`
 
 export const getAllBlogPosts = gql`
   ${ITEMS_FRAGMENT}
-  query getAllBlogPosts {
-    blogPostCollection(where: { hidden: false }, order: date_ASC) {
+  query getAllBlogPosts($preview: Boolean!) {
+    blogPostCollection(
+      where: { hidden: false }
+      order: date_ASC
+      preview: $preview
+    ) {
       total
       items {
         ...ItemsFragment
@@ -37,12 +41,25 @@ export const getAllBlogPosts = gql`
 
 export const getBlogPost = gql`
   ${ITEMS_FRAGMENT}
-  query getBlogPost($slug: String!) {
-    blogPostCollection(where: { slug: $slug }, limit: 1) {
+  query getBlogPost($slug: String!, $preview: Boolean!) {
+    blogPostCollection(where: { slug: $slug }, limit: 1, preview: $preview) {
       items {
         ...ItemsFragment
         text {
           json
+          links {
+            assets {
+              block {
+                title
+                url
+                height
+                width
+                sys {
+                  id
+                }
+              }
+            }
+          }
         }
       }
     }

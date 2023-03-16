@@ -1,5 +1,5 @@
-import { useMemo, useEffect, useState } from "react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { useMemo, useEffect } from "react";
+import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -22,6 +22,13 @@ import nProgressStyles from "./styles/nprogress.css";
 
 import type { Env } from "./types";
 import { Layout } from "./components/Layout";
+import { getThemeSession } from "./utils/theme.server";
+import {
+  ThemeBody,
+  ThemeHead,
+  ThemeProvider,
+  useTheme,
+} from "./utils/theme-provider";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -34,6 +41,7 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const strictEntries = <T extends Record<string, any>>(
   object: T
 ): [keyof T, T[keyof T]][] => {
@@ -50,14 +58,23 @@ function getPublicKeys(env: Env): Env {
   return publicKeys;
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderArgs) => {
+  const themeSession = await getThemeSession(request);
+  const requestUrl = new URL(request.url);
+
+  const preview =
+    requestUrl?.searchParams?.get("preview") === process.env.PREVIEW_SECRET;
+
   return json({
     ENV: getPublicKeys(process.env),
+    theme: themeSession.getTheme(),
+    preview,
   });
 };
 
-export default function App() {
-  const { ENV } = useLoaderData<typeof loader>();
+function App() {
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
 
   const transition = useNavigation();
 
@@ -82,13 +99,16 @@ export default function App() {
   }, [state, transition.state]);
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`h-full scroll-smooth ${theme ?? ""}`}>
       <head>
         <Meta />
         <Links />
+        <ThemeHead ssrTheme={Boolean(data.theme)} />
       </head>
-      <body className="h-full bg-honey-50 antialiased">
+      <body className="h-full bg-honey-50 antialiased dark:bg-night-900">
         <Outlet />
+        <ThemeBody ssrTheme={Boolean(data.theme)} />
+
         <Toaster richColors />
 
         <Scripts />
@@ -102,21 +122,37 @@ export default function App() {
 export function CatchBoundary() {
   const caught = useCatch();
 
+  const theme = caught.data.theme;
+
   return (
-    <html className="h-full">
-      <head>
-        <title>Oops!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body className="h-full bg-honey-50 antialiased">
-        <Layout>
-          <div className="container flex flex-1 items-center justify-center">
-            <h1 className="text-4xl font-bold">Oops!</h1>
-            <p className="text-xl">{caught.data.message}</p>
-          </div>
-        </Layout>
-      </body>
-    </html>
+    <ThemeProvider specifiedTheme={theme}>
+      <html lang="en" className={`h-full ${theme ?? ""}`}>
+        <head>
+          <title>Oops!</title>
+          <Meta />
+          <Links />
+          <ThemeHead ssrTheme={Boolean(theme)} />
+        </head>
+        <body className="h-full bg-honey-50 antialiased dark:bg-night-900">
+          <ThemeBody ssrTheme={Boolean(theme)} />
+          <Layout>
+            <div className="container flex flex-1 items-center justify-center space-x-2">
+              <h1 className="text-4xl font-bold">Oops!</h1>
+              <p className="text-xl">{caught.data.message}</p>
+            </div>
+          </Layout>
+        </body>
+      </html>
+    </ThemeProvider>
+  );
+}
+
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <ThemeProvider specifiedTheme={data.theme}>
+      <App />
+    </ThemeProvider>
   );
 }

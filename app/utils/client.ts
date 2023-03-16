@@ -5,13 +5,18 @@ import { getSdk as getExchangeSdk } from "~/graphql/app.generated";
 import { createTypeLevelClient, initUntypeable } from "untypeable";
 
 // contentful API
-export const contenfulDeliverySdk = getExchangeSdk(
-  new GraphQLClient(process.env.CONTENTFUL_ENDPOINT as string, {
-    headers: {
-      Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`,
-    },
-  })
-);
+export const contenfulDeliverySdk = (preview: boolean) =>
+  getExchangeSdk(
+    new GraphQLClient(process.env.CONTENTFUL_ENDPOINT as string, {
+      headers: {
+        Authorization: `Bearer ${
+          preview
+            ? process.env.CONTENTFUL_DELIVERY_PREVIEW_TOKEN
+            : process.env.CONTENTFUL_DELIVERY_TOKEN
+        }`,
+      },
+    })
+  );
 
 // used https://transform.tools/json-to-typescript to get this
 export interface Root {
