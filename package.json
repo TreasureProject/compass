@@ -5,7 +5,7 @@
   "license": "",
   "sideEffects": false,
   "scripts": {
-    "build": "remix build",
+    "build": "npm run codegen && remix build",
     "deploy": "fly deploy --remote-only",
     "dev:remix": "remix dev",
     "dev": "npm-run-all --parallel dev:*",
