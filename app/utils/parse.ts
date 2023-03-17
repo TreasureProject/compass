@@ -3,6 +3,7 @@ import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
 import type { GetBlogPostQuery } from "~/graphql/app.generated";
 import { toWebp } from "./lib";
+import highlightjs from "highlight.js";
 
 export const parseDocument = (
   post: NonNullable<
@@ -12,6 +13,24 @@ export const parseDocument = (
   const { json, links } = post?.text ?? {};
 
   const renderNodeOptions: RenderNode = {
+    [BLOCKS.EMBEDDED_ENTRY]: (node) => {
+      const entry = links?.entries.block.find((i) => {
+        console.log(i?.__typename);
+        if (i?.__typename === "CodeBlock") {
+          return i?.sys.id === node.data.target.sys.id;
+        }
+
+        return false;
+      });
+
+      if (!entry || entry.__typename !== "CodeBlock") return "";
+
+      const { value: code } = highlightjs.highlight(entry.code || "", {
+        language: entry.lang || "plaintext",
+      });
+
+      return `<pre><code>${code}</code></pre>`;
+    },
     [BLOCKS.EMBEDDED_ASSET]: (node) => {
       const img = links?.assets.block.find(
         (i) => i?.sys.id === node.data.target.sys.id

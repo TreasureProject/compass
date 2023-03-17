@@ -49,6 +49,19 @@ export const getBlogPost = gql`
         text {
           json
           links {
+            entries {
+              block {
+                ... on CodeBlock {
+                  __typename
+                  title
+                  lang
+                  code
+                  sys {
+                    id
+                  }
+                }
+              }
+            }
             assets {
               block {
                 title

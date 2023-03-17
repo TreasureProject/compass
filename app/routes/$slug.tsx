@@ -1,4 +1,4 @@
-import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderArgs, MetaFunction, LinksFunction } from "@remix-run/node";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { json } from "@remix-run/node";
 import { contenfulDeliverySdk } from "~/utils/client";
@@ -25,14 +25,17 @@ import { getThemeSession } from "~/utils/theme.server";
 import Balancer from "react-wrap-balancer";
 import { generateTitle, getSocialMetas, getUrl } from "~/utils/seo";
 import type { loader as rootLoader } from "~/root";
+import highlightStyles from "highlight.js/styles/agate.css";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: highlightStyles },
+];
 
 export const meta: MetaFunction = (args) => {
   const { requestInfo } = args.parentsData.root as SerializeFrom<
     typeof rootLoader
   >;
   const data = args.data as SerializeFrom<typeof loader>;
-
-  console.log(args.data);
 
   return getSocialMetas({
     url: getUrl(requestInfo),
@@ -203,7 +206,7 @@ export default function BlogPost() {
           </div>
           <article
             id="content"
-            className="prose prose-sm prose-night mt-12 max-w-none dark:prose-invert sm:prose-base lg:prose-lg hover:prose-a:text-ruby-900 prose-blockquote:border-l-ruby-400 prose-li:marker:text-ruby-800 prose-img:rounded-lg prose-img:ring-2 prose-img:ring-night-900/10 prose-img:dark:ring-night-500/10"
+            className="prose prose-sm prose-night mt-12 max-w-none dark:prose-invert sm:prose-base lg:prose-lg hover:prose-a:text-ruby-900 prose-blockquote:border-l-ruby-400 prose-pre:bg-night-800 prose-li:marker:text-ruby-800 prose-img:rounded-lg prose-img:ring-2 prose-img:ring-night-900/10 prose-img:dark:ring-night-500/10"
             dangerouslySetInnerHTML={{
               __html: post.text,
             }}
