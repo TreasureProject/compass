@@ -13,6 +13,7 @@ const ITEMS_FRAGMENT = gql`
         }
       }
     }
+    category
     title
     subtitle
     slug

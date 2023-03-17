@@ -12,7 +12,13 @@ import {
 import { notFound, useHydrated } from "remix-utils";
 import { parseDocument } from "~/utils/parse";
 import React from "react";
-import { cn, getAuthors, slugify } from "~/utils/lib";
+import {
+  cn,
+  decimalToTime,
+  formatDate,
+  getAuthors,
+  slugify,
+} from "~/utils/lib";
 import { getThemeSession } from "~/utils/theme.server";
 import Balancer from "react-wrap-balancer";
 
@@ -47,6 +53,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     post: {
       ...post,
       text: textToString,
+      date: formatDate(post.date),
     },
   });
 };
@@ -141,14 +148,29 @@ export default function BlogPost() {
               </div>
             )}
           </figure>
-          <p className="mt-4 text-sm font-medium text-night-600 dark:text-night-400">
-            <span>Aug. 4th, 2022</span>
-          </p>
-          <Balancer>
-            <h1 className="mt-4 overflow-hidden text-xl font-extrabold text-night-900 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-2xl lg:text-4xl">
-              {post.title}
-            </h1>
-          </Balancer>
+          <dl className="mt-4 flex items-center text-night-600 dark:text-night-400">
+            <div>
+              <dt className="sr-only">Publish Date</dt>
+              <dl className="text-sm font-medium">
+                <span>Aug. 4th, 2022</span>
+              </dl>
+            </div>
+            <div aria-hidden="true" className="mx-2">
+              ·
+            </div>
+            <div>
+              <dt className="sr-only">Time to Read</dt>
+              <dl className="text-sm font-medium">
+                <span>
+                  {" "}
+                  {decimalToTime((post?.text?.length || 0) / 5 / 180 || 0)}
+                </span>
+              </dl>
+            </div>
+          </dl>
+          <h1 className="mt-4 overflow-hidden text-xl font-extrabold text-night-900 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-2xl lg:text-4xl">
+            <Balancer>{post.title}</Balancer>
+          </h1>
           <div className="mt-6 gap-2">
             <figure className="relative h-48 sm:h-96">
               <picture>

@@ -6,7 +6,7 @@ import {
   useRouteLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import type { LoaderArgs } from "@remix-run/node";
 
@@ -14,6 +14,8 @@ import { Layout } from "~/components/Layout";
 import { getAllCategories } from "~/utils/client";
 import { getAuthors } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
+
+const MotionLink = motion(Link);
 
 export const loader = async ({ request }: LoaderArgs) => {
   const allCategories = await getAllCategories();
@@ -40,9 +42,17 @@ export default function Index() {
   ]);
   const [searchParams] = useSearchParams();
 
-  const allPosts = posts.blogPostCollection?.items || [];
+  const activeCategory = categories.find((category) => category.active);
 
-  const latestPost = allPosts[0];
+  const filteredPostsByCategory = posts.filter((post) => {
+    if (activeCategory?.name === "all") return true;
+
+    return post?.category?.some(
+      (category) => category === activeCategory?.name
+    );
+  });
+
+  const latestPost = posts[0];
 
   const authors = getAuthors(latestPost);
 
@@ -99,7 +109,7 @@ export default function Index() {
               )}
             </figure>
             <span className="text-xs font-medium text-night-600 [grid-area:date] dark:text-night-500">
-              <span>Aug. 4th, 2022</span>
+              <span>{latestPost.date}</span>
             </span>
           </div>
           <p className="text-sm font-semibold text-ruby-900 [grid-area:readMore] lg:pl-8">
@@ -138,58 +148,61 @@ export default function Index() {
 
         {/* posts */}
         <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-          {allPosts.map((post) => {
-            const authors = post?.authorCollection?.items || [];
-            return (
-              <Link
-                to={`/${post?.slug}?${searchParams.toString()}`}
-                key={post?.slug}
-                className="post relative gap-2 sm:gap-4"
-              >
-                <figure className="relative h-48 [grid-area:image]">
-                  <img
-                    src={post?.coverImage?.url || ""}
-                    className="h-full w-full rounded-xl object-cover shadow"
-                    alt={`Cover for ${post?.title}`}
-                  />
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
-                </figure>
-                <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
-                  {post?.title}
-                </h3>
-                <div className="flex items-center space-x-3 [grid-area:author]">
-                  <figure className="flex items-center gap-2">
-                    {post?.authorCollection?.items.length === 1 ? (
-                      <>
-                        <img
-                          src={getAuthors(post)[0]?.image?.url || ""}
-                          className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
-                          alt={`Avatar for ${getAuthors(post)[0]?.name}`}
-                        />
-                        <figcaption className="text-xs font-medium text-night-800 dark:text-night-200">
-                          <span>{getAuthors(post)[0]?.name}</span>
-                        </figcaption>
-                      </>
-                    ) : (
-                      <div className="flex -space-x-2">
-                        {authors.map((author) => (
-                          <img
-                            key={author?.name}
-                            src={author?.image?.url || ""}
-                            className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
-                            alt={`Avatar for ${author?.name}`}
-                          />
-                        ))}
-                      </div>
-                    )}
+          <AnimatePresence mode="popLayout">
+            {filteredPostsByCategory.map((post, i) => {
+              const authors = post?.authorCollection?.items || [];
+              return (
+                <MotionLink
+                  layout
+                  to={`/${post?.slug}?${searchParams.toString()}`}
+                  key={post?.slug}
+                  className="post relative gap-2 sm:gap-4"
+                >
+                  <figure className="relative h-48 [grid-area:image]">
+                    <img
+                      src={post?.coverImage?.url || ""}
+                      className="h-full w-full rounded-xl object-cover shadow"
+                      alt={`Cover for ${post?.title}`}
+                    />
+                    <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
                   </figure>
-                  <span className="text-xs font-medium text-night-600 [grid-area:date]">
-                    <span>Aug. 4th, 2022</span>
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+                  <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
+                    {post?.title}
+                  </h3>
+                  <div className="flex items-center space-x-3 [grid-area:author]">
+                    <figure className="flex items-center gap-2">
+                      {post?.authorCollection?.items.length === 1 ? (
+                        <>
+                          <img
+                            src={getAuthors(post)[0]?.image?.url || ""}
+                            className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                            alt={`Avatar for ${getAuthors(post)[0]?.name}`}
+                          />
+                          <figcaption className="text-xs font-medium text-night-800 dark:text-night-200">
+                            <span>{getAuthors(post)[0]?.name}</span>
+                          </figcaption>
+                        </>
+                      ) : (
+                        <div className="flex -space-x-2">
+                          {authors.map((author) => (
+                            <img
+                              key={author?.name}
+                              src={author?.image?.url || ""}
+                              className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                              alt={`Avatar for ${author?.name}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </figure>
+                    <span className="text-xs font-medium text-night-600 [grid-area:date]">
+                      <span>{post.date}</span>
+                    </span>
+                  </div>
+                </MotionLink>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </main>
     </Layout>

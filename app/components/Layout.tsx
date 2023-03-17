@@ -44,8 +44,8 @@ function CommandMenu({
 
   const filteredPosts =
     value === ""
-      ? posts.blogPostCollection?.items.slice(0, 5)
-      : posts.blogPostCollection?.items.filter((post) =>
+      ? posts.slice(0, 5)
+      : posts.filter((post) =>
           post?.title?.toLowerCase().includes(value.toLowerCase())
         );
 
@@ -62,7 +62,7 @@ function CommandMenu({
           {filteredPosts?.map((post) => (
             <CommandItem
               onSelect={(v) => {
-                const targetPost = posts.blogPostCollection?.items.find(
+                const targetPost = posts.find(
                   (p) => p?.title?.trim().toLowerCase() === v
                 );
 

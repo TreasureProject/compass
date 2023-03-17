@@ -30,6 +30,7 @@ import {
   useTheme,
 } from "./utils/theme-provider";
 import { contenfulDeliverySdk } from "./utils/client";
+import { formatDate } from "./utils/lib";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -66,15 +67,20 @@ export const loader = async ({ request }: LoaderArgs) => {
   const preview =
     requestUrl?.searchParams?.get("preview") === process.env.PREVIEW_SECRET;
 
-  const posts = await contenfulDeliverySdk(preview).getAllBlogPosts({
+  const data = await contenfulDeliverySdk(preview).getAllBlogPosts({
     preview,
   });
+
+  const posts = data.blogPostCollection?.items ?? [];
 
   return json({
     ENV: getPublicKeys(process.env),
     theme: themeSession.getTheme(),
     preview,
-    posts,
+    posts: posts.map((post) => ({
+      ...post,
+      date: formatDate(post?.date),
+    })),
   });
 };
 
