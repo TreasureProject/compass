@@ -2,6 +2,7 @@ import type { RenderNode } from "@contentful/rich-text-html-renderer";
 import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
 import type { GetBlogPostQuery } from "~/graphql/app.generated";
+import { toWebp } from "./lib";
 
 export const parseDocument = (
   post: NonNullable<
@@ -18,7 +19,9 @@ export const parseDocument = (
 
       if (!img) return "";
 
-      return `<img src="${img.url}" alt="${img.title}" width="${img.width}" height="${img.height}" />`;
+      return `<img src="${toWebp(img.url || "")}" alt="${img.title}" width="${
+        img.width
+      }" height="${img.height}" />`;
     },
   };
 

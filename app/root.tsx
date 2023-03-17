@@ -31,16 +31,45 @@ import {
 } from "./utils/theme-provider";
 import { contenfulDeliverySdk } from "./utils/client";
 import { formatDate } from "./utils/lib";
+import { getDomainUrl } from "./utils/misc";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "stylesheet", href: nProgressStyles },
+  {
+    rel: "apple-touch-icon",
+    sizes: "180x180",
+    href: "/apple-touch-icon.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "32x32",
+    href: "/favicon-32x32.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "16x16",
+    href: "/favicon-16x16.png",
+  },
+  {
+    rel: "manifest",
+    href: "/site.webmanifest",
+  },
+  {
+    rel: "mask-icon",
+    href: "/safari-pinned-tab.svg",
+    color: "#c62222",
+  },
 ];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "Web3 Frontend Starter Template",
   viewport: "width=device-width,initial-scale=1",
+  "msapplication-TileColor": "#fffaef",
+  "theme-color": "#fffaef",
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +103,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   const posts = data.blogPostCollection?.items ?? [];
 
   return json({
+    requestInfo: {
+      origin: getDomainUrl(request),
+      path: new URL(request.url).pathname,
+    },
     ENV: getPublicKeys(process.env),
     theme: themeSession.getTheme(),
     preview,

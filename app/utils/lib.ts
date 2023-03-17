@@ -31,3 +31,9 @@ export const decimalToTime = (minutes: number) =>
 
 export const formatDate = (date: any) =>
   format(Date.parse(date), "MMM. dd, yyyy");
+
+export const toWebp = (url: string) => {
+  const u = new URL(url);
+  u.searchParams.set("fm", "webp");
+  return u.toString();
+};

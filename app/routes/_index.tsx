@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { MetaFunction, SerializeFrom } from "@remix-run/server-runtime";
 import {
   Link,
   useLoaderData,
@@ -12,12 +12,23 @@ import type { LoaderArgs } from "@remix-run/node";
 
 import { Layout } from "~/components/Layout";
 import { getAllCategories } from "~/utils/client";
-import { getAuthors } from "~/utils/lib";
+import { getAuthors, toWebp } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
+import { getSocialMetas, getUrl } from "~/utils/seo";
+
+export const meta: MetaFunction = (args) => {
+  const { requestInfo } = args.parentsData.root as SerializeFrom<
+    typeof rootLoader
+  >;
+
+  return getSocialMetas({
+    url: getUrl(requestInfo),
+  });
+};
 
 const MotionLink = motion(Link);
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async () => {
   const allCategories = await getAllCategories();
 
   return json({
@@ -68,7 +79,7 @@ export default function Index() {
           <figure className="relative -inset-y-4 inset-x-0 [grid-area:image] lg:absolute">
             <picture className="top-0 left-0 h-full w-full lg:absolute">
               <img
-                src={latestPost?.coverImage?.url || ""}
+                src={toWebp(latestPost?.coverImage?.url || "")}
                 className="h-full w-full rounded-xl object-cover shadow-xl"
                 alt=""
               />
@@ -87,7 +98,7 @@ export default function Index() {
               {authors.length === 1 ? (
                 <>
                   <img
-                    src={authors[0]?.image?.url || ""}
+                    src={toWebp(authors[0]?.image?.url || "")}
                     className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500 lg:h-8 lg:w-8"
                     alt={`Avatar for ${authors[0]?.name}`}
                   />
@@ -100,7 +111,7 @@ export default function Index() {
                   {authors.map((author) => (
                     <img
                       key={author?.name}
-                      src={author?.image?.url || ""}
+                      src={toWebp(author?.image?.url || "")}
                       className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500 lg:h-8 lg:w-8"
                       alt={`Avatar for ${author?.name}`}
                     />
@@ -160,7 +171,7 @@ export default function Index() {
                 >
                   <figure className="relative h-48 [grid-area:image]">
                     <img
-                      src={post?.coverImage?.url || ""}
+                      src={toWebp(post?.coverImage?.url || "")}
                       className="h-full w-full rounded-xl object-cover shadow"
                       alt={`Cover for ${post?.title}`}
                     />
@@ -174,7 +185,7 @@ export default function Index() {
                       {post?.authorCollection?.items.length === 1 ? (
                         <>
                           <img
-                            src={getAuthors(post)[0]?.image?.url || ""}
+                            src={toWebp(getAuthors(post)[0]?.image?.url || "")}
                             className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
                             alt={`Avatar for ${getAuthors(post)[0]?.name}`}
                           />
@@ -187,7 +198,7 @@ export default function Index() {
                           {authors.map((author) => (
                             <img
                               key={author?.name}
-                              src={author?.image?.url || ""}
+                              src={toWebp(author?.image?.url || "")}
                               className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
                               alt={`Avatar for ${author?.name}`}
                             />

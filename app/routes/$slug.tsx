@@ -1,4 +1,5 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 import { json } from "@remix-run/node";
 import { contenfulDeliverySdk } from "~/utils/client";
 import invariant from "tiny-invariant";
@@ -18,9 +19,26 @@ import {
   formatDate,
   getAuthors,
   slugify,
+  toWebp,
 } from "~/utils/lib";
 import { getThemeSession } from "~/utils/theme.server";
 import Balancer from "react-wrap-balancer";
+import { generateTitle, getSocialMetas, getUrl } from "~/utils/seo";
+import type { loader as rootLoader } from "~/root";
+
+export const meta: MetaFunction = (args) => {
+  const { requestInfo } = args.parentsData.root as SerializeFrom<
+    typeof rootLoader
+  >;
+  const data = args.data as SerializeFrom<typeof loader>;
+
+  console.log(args.data);
+
+  return getSocialMetas({
+    url: getUrl(requestInfo),
+    title: generateTitle(data.post.title || ""),
+  });
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const requestUrl = new URL(request.url);
@@ -127,7 +145,7 @@ export default function BlogPost() {
             {authors.length === 1 ? (
               <>
                 <img
-                  src={authors[0]?.image?.url || ""}
+                  src={toWebp(authors[0]?.image?.url || "")}
                   className="h-6 w-6 rounded-full bg-honey-400 shadow-2xl [box-shadow:inset_0_0_0_0.5px_#FACE6150] lg:h-8 lg:w-8"
                   alt={`Avatar for ${authors[0]?.name}`}
                 />
@@ -140,7 +158,7 @@ export default function BlogPost() {
                 {authors.map((author) => (
                   <img
                     key={author?.name}
-                    src={author?.image?.url || ""}
+                    src={toWebp(author?.image?.url || "")}
                     className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-900 lg:h-8 lg:w-8"
                     alt={`Avatar for ${author?.name}`}
                   />
@@ -152,7 +170,7 @@ export default function BlogPost() {
             <div>
               <dt className="sr-only">Publish Date</dt>
               <dl className="text-sm font-medium">
-                <span>Aug. 4th, 2022</span>
+                <span>{post.date}</span>
               </dl>
             </div>
             <div aria-hidden="true" className="mx-2">
@@ -175,7 +193,7 @@ export default function BlogPost() {
             <figure className="relative h-48 sm:h-96">
               <picture>
                 <img
-                  src={post.coverImage?.url || ""}
+                  src={toWebp(post.coverImage?.url || "")}
                   className="aspect-video h-full w-full rounded-xl object-cover object-center shadow"
                   alt={post.title || "Cover"}
                 />
