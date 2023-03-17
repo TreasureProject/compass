@@ -15,7 +15,6 @@ export const parseDocument = (
   const renderNodeOptions: RenderNode = {
     [BLOCKS.EMBEDDED_ENTRY]: (node) => {
       const entry = links?.entries.block.find((i) => {
-        console.log(i?.__typename);
         if (i?.__typename === "CodeBlock") {
           return i?.sys.id === node.data.target.sys.id;
         }
@@ -29,7 +28,7 @@ export const parseDocument = (
         language: entry.lang || "plaintext",
       });
 
-      return `<pre><code>${code}</code></pre>`;
+      return `<pre data-lang="${entry.lang}"><code>${code}</code></pre>`;
     },
     [BLOCKS.EMBEDDED_ASSET]: (node) => {
       const img = links?.assets.block.find(

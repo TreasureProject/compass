@@ -206,7 +206,7 @@ export default function BlogPost() {
           </div>
           <article
             id="content"
-            className="prose prose-sm prose-night mt-12 max-w-none dark:prose-invert sm:prose-base lg:prose-lg hover:prose-a:text-ruby-900 prose-blockquote:border-l-ruby-400 prose-pre:bg-night-800 prose-li:marker:text-ruby-800 prose-img:rounded-lg prose-img:ring-2 prose-img:ring-night-900/10 prose-img:dark:ring-night-500/10"
+            className="prose prose-sm prose-night mt-12 max-w-none dark:prose-invert sm:prose-base lg:prose-lg hover:prose-a:text-ruby-900 prose-blockquote:border-l-ruby-400 prose-pre:relative prose-pre:bg-night-800 prose-pre:after:absolute prose-pre:after:top-0 prose-pre:after:right-0 prose-pre:after:rounded-bl-md prose-pre:after:bg-night-900 prose-pre:after:px-2 prose-pre:after:py-1 prose-pre:after:text-xs prose-pre:after:content-[attr(data-lang)] prose-li:marker:text-ruby-800 prose-img:rounded-lg prose-img:ring-2 prose-img:ring-night-900/10 prose-pre:dark:bg-night-800/50 prose-pre:after:dark:bg-night-800 prose-img:dark:ring-night-500/10"
             dangerouslySetInnerHTML={{
               __html: post.text,
             }}
