@@ -29,6 +29,7 @@ import {
   ThemeProvider,
   useTheme,
 } from "./utils/theme-provider";
+import { contenfulDeliverySdk } from "./utils/client";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -65,10 +66,15 @@ export const loader = async ({ request }: LoaderArgs) => {
   const preview =
     requestUrl?.searchParams?.get("preview") === process.env.PREVIEW_SECRET;
 
+  const posts = await contenfulDeliverySdk(preview).getAllBlogPosts({
+    preview,
+  });
+
   return json({
     ENV: getPublicKeys(process.env),
     theme: themeSession.getTheme(),
     preview,
+    posts,
   });
 };
 

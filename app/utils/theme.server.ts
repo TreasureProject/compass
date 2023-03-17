@@ -27,6 +27,7 @@ async function getThemeSession(request: Request) {
     },
     setTheme: (theme: Theme) => session.set("theme", theme),
     commit: () => themeStorage.commitSession(session),
+    reset: () => themeStorage.destroySession(session),
   };
 }
 

@@ -1,32 +1,33 @@
 import { json } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import {
+  Link,
+  useLoaderData,
+  useRouteLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { motion } from "framer-motion";
 import React from "react";
 import type { LoaderArgs } from "@remix-run/node";
 
 import { Layout } from "~/components/Layout";
-import { contenfulDeliverySdk, getAllCategories } from "~/utils/client";
+import { getAllCategories } from "~/utils/client";
 import { getAuthors } from "~/utils/lib";
+import type { loader as rootLoader } from "~/root";
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const requestUrl = new URL(request.url);
-
-  const preview =
-    requestUrl?.searchParams?.get("preview") === process.env.PREVIEW_SECRET;
-
   const allCategories = await getAllCategories();
-  const posts = await contenfulDeliverySdk(preview).getAllBlogPosts({
-    preview,
-  });
 
   return json({
     allCategories,
-    posts,
   });
 };
 
 export default function Index() {
-  const { allCategories, posts } = useLoaderData<typeof loader>();
+  const { allCategories } = useLoaderData<typeof loader>();
+  const { posts } = useRouteLoaderData("root") as SerializeFrom<
+    typeof rootLoader
+  >;
   const [categories, setActiveCategories] = React.useState([
     {
       name: "all",
@@ -48,14 +49,14 @@ export default function Index() {
   return (
     <Layout>
       {/* main */}
-      <main className="container mt-16">
+      <main className="container mt-2 xl:mt-16">
         {/* latest blog post */}
         <Link
           to={`/${latestPost?.slug}?${searchParams.toString()}`}
           className="latestPost relative gap-4 py-8"
         >
-          <figure className="absolute -inset-y-4 inset-x-0 [grid-area:image]">
-            <picture className="absolute top-0 left-0 h-full w-full">
+          <figure className="relative -inset-y-4 inset-x-0 [grid-area:image] lg:absolute">
+            <picture className="top-0 left-0 h-full w-full lg:absolute">
               <img
                 src={latestPost?.coverImage?.url || ""}
                 className="h-full w-full rounded-xl object-cover shadow-xl"
@@ -65,22 +66,22 @@ export default function Index() {
             <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
           </figure>
 
-          <h2 className="pl-8 text-3xl font-semibold text-night-900 [grid-area:title] dark:text-honey-200">
+          <h2 className="text-lg font-semibold text-night-900 [grid-area:title] dark:text-honey-200 lg:pl-8 lg:text-2xl xl:text-3xl">
             {latestPost?.title}
           </h2>
-          <p className="pl-8 text-lg text-night-700 [grid-area:excerpt] dark:text-night-500">
+          <p className="text-sm text-night-700 [grid-area:excerpt] dark:text-night-500 lg:pl-8 lg:text-lg">
             {latestPost?.subtitle}
           </p>
-          <div className="flex items-center space-x-3 pl-8 [grid-area:author]">
+          <div className="flex items-center space-x-3 [grid-area:author] lg:pl-8">
             <figure className="flex items-center gap-2">
               {authors.length === 1 ? (
                 <>
                   <img
                     src={authors[0]?.image?.url || ""}
-                    className="h-8 w-8 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                    className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500 lg:h-8 lg:w-8"
                     alt={`Avatar for ${authors[0]?.name}`}
                   />
-                  <figcaption className="flex flex-col text-sm font-medium text-night-800 dark:text-night-200">
+                  <figcaption className="flex flex-col text-xs font-medium text-night-800 dark:text-night-200 sm:text-sm">
                     <span>{authors[0]?.name}</span>
                   </figcaption>
                 </>
@@ -90,7 +91,7 @@ export default function Index() {
                     <img
                       key={author?.name}
                       src={author?.image?.url || ""}
-                      className="inline-block h-8 w-8 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                      className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500 lg:h-8 lg:w-8"
                       alt={`Avatar for ${author?.name}`}
                     />
                   ))}
@@ -101,13 +102,13 @@ export default function Index() {
               <span>Aug. 4th, 2022</span>
             </span>
           </div>
-          <p className="pl-8 text-sm font-semibold text-ruby-900 [grid-area:readMore]">
+          <p className="text-sm font-semibold text-ruby-900 [grid-area:readMore] lg:pl-8">
             Read more →
           </p>
         </Link>
 
         {/* categories */}
-        <ul className="mt-12 flex space-x-6">
+        <ul className="mt-6 flex space-x-4 sm:space-x-6 lg:mt-12">
           {categories.map((category) => {
             return (
               <li key={category.name} className="relative">
@@ -120,7 +121,7 @@ export default function Index() {
                       }))
                     );
                   }}
-                  className="px-0.5 py-1 font-semibold text-night-900 dark:text-night-100"
+                  className="px-0.5 py-1 text-xs font-semibold text-night-900 dark:text-night-100 sm:text-base"
                 >
                   <span className="capitalize">{category.name}</span>
                 </button>
@@ -136,14 +137,14 @@ export default function Index() {
         </ul>
 
         {/* posts */}
-        <div className="mt-6 grid grid-cols-4 gap-6">
+        <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {allPosts.map((post) => {
             const authors = post?.authorCollection?.items || [];
             return (
               <Link
                 to={`/${post?.slug}?${searchParams.toString()}`}
                 key={post?.slug}
-                className="post relative gap-4"
+                className="post relative gap-2 sm:gap-4"
               >
                 <figure className="relative h-48 [grid-area:image]">
                   <img
@@ -153,7 +154,7 @@ export default function Index() {
                   />
                   <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
                 </figure>
-                <h3 className="overflow-hidden text-lg font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200">
+                <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
                   {post?.title}
                 </h3>
                 <div className="flex items-center space-x-3 [grid-area:author]">

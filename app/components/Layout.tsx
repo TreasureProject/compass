@@ -1,4 +1,9 @@
-import { Link, useSearchParams, useRouteLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useSearchParams,
+  useRouteLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import React from "react";
 import CompassLogo from "~/assets/CompassLogo.svg";
 import CompassText from "~/assets/CompassText.svg";
@@ -16,9 +21,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./Dropdown";
-import { SunMedium, Moon } from "lucide-react";
+import { SunMedium, Moon, Laptop } from "lucide-react";
 import { Theme, useTheme } from "~/utils/theme-provider";
 import type { loader } from "~/root";
+
 import { Preview } from "./Preview";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 
@@ -31,15 +37,46 @@ function CommandMenu({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+  const [value, setValue] = React.useState("");
+  const { posts } = useRouteLoaderData("root") as SerializeFrom<typeof loader>;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const filteredPosts =
+    value === ""
+      ? posts.blogPostCollection?.items.slice(0, 5)
+      : posts.blogPostCollection?.items.filter((post) =>
+          post?.title?.toLowerCase().includes(value.toLowerCase())
+        );
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput
+        value={value}
+        onValueChange={setValue}
+        placeholder="Search posts..."
+      />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Suggestions">
-          <CommandItem>Calendar</CommandItem>
-          <CommandItem>Search Emoji</CommandItem>
-          <CommandItem>Calculator</CommandItem>
+          {filteredPosts?.map((post) => (
+            <CommandItem
+              onSelect={(v) => {
+                const targetPost = posts.blogPostCollection?.items.find(
+                  (p) => p?.title?.trim().toLowerCase() === v
+                );
+
+                if (!targetPost) return;
+
+                navigate(`/${targetPost.slug}/?${searchParams.toString()}`);
+
+                setOpen(false);
+              }}
+              key={post?.slug}
+            >
+              <span className="truncate">{post?.title}</span>
+            </CommandItem>
+          ))}
         </CommandGroup>
       </CommandList>
     </CommandDialog>
@@ -79,8 +116,11 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               className="hidden dark:invert sm:inline-block"
             />
           </Link>
-          <div className="flex flex-1 items-center justify-end space-x-4">
-            <button className="group relative inline-flex h-9 w-full items-center justify-start rounded-md border border-night-200 bg-transparent py-2 px-4 text-sm font-medium text-night-400 transition-colors hover:bg-night-100 focus:outline-none focus:ring-2 focus:ring-night-400 focus:ring-offset-2 active:scale-95 dark:border-night-700 dark:hover:bg-night-800/50 dark:focus:ring-night-600 sm:pr-12 md:w-40 lg:w-64">
+          <div className="ml-4 flex flex-1 items-center justify-end space-x-4">
+            <button
+              onClick={() => setOpen(true)}
+              className="group relative inline-flex h-9 w-full items-center justify-start rounded-md border border-night-200 bg-transparent py-2 px-4 text-sm font-medium text-night-400 transition-colors hover:bg-night-100 focus:outline-none focus:ring-2 focus:ring-night-400 focus:ring-offset-2 active:scale-95 dark:border-night-700 dark:hover:bg-night-800/50 dark:focus:ring-night-600 sm:pr-12 md:w-48 lg:w-64"
+            >
               <span className="font-medium transition-colors dark:text-night-600 dark:group-hover:text-night-400">
                 Search posts...
               </span>
@@ -105,6 +145,10 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   <Moon className="mr-2 h-4 w-4" />
                   <span>Dark</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme(Theme.SYSTEM)}>
+                  <Laptop className="mr-2 h-4 w-4" />
+                  <span>System</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -114,7 +158,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {preview ? <Preview /> : null}
         {children}
       </div>
-      <footer className="container">
+      <footer className="container mt-8">
         <div className="flex h-24">
           <Link
             to={`/?${searchParams.toString()}`}
@@ -128,7 +172,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             />
           </Link>
           <div className="flex flex-1 items-center justify-end">
-            <p className="text-sm text-night-700 dark:text-night-400">
+            <p className="text-xs text-night-700 dark:text-night-400 sm:text-sm">
               &copy; 2021-{currentYear} Treasure. All Rights Reserved.
             </p>
           </div>

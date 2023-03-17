@@ -8,13 +8,24 @@
 }
 
 .latestPost {
-  grid-template-areas:
-    "image image title title"
-    "image image excerpt excerpt"
-    "image image author author"
-    "image image readMore readMore";
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas:
+    "image image image image"
+    "title title title title"
+    "excerpt excerpt excerpt excerpt"
+    "author author author author"
+    "readMore readMore readMore readMore";
+}
+
+@screen lg {
+  .latestPost {
+    grid-template-areas:
+      "image image title title"
+      "image image excerpt excerpt"
+      "image image author author"
+      "image image readMore readMore";
+  }
 }
 
 .post {

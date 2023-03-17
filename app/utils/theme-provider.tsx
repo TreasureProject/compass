@@ -13,6 +13,7 @@ import {
 enum Theme {
   DARK = "dark",
   LIGHT = "light",
+  SYSTEM = "system",
 }
 const themes: Array<Theme> = Object.values(Theme);
 
@@ -61,6 +62,14 @@ function ThemeProvider({
   }, [persistTheme]);
 
   const mountRun = useRef(false);
+
+  useEffect(() => {
+    if (!theme) return;
+
+    if (theme === Theme.SYSTEM) {
+      setTheme(getPreferredTheme());
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!mountRun.current) {
