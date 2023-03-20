@@ -77,7 +77,7 @@ const Card = ({
   children: React.ReactNode;
   image: string;
 }) => (
-  <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-2.5xl border-2 border-honey-300 bg-honey-50 p-10 dark:border-night-800 dark:bg-[#131D2E]">
+  <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-2.5xl border-2 border-honey-300 bg-honey-25 p-10 dark:border-night-800 dark:bg-[#131D2E]">
     <div className="relative z-10 max-w-[10rem] sm:max-w-md lg:max-w-[17rem]">
       <p className="text-xl font-bold text-ruby-900 dark:text-night-200 lg:text-3xl">
         {title}
