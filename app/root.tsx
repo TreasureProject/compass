@@ -215,7 +215,7 @@ export function CatchBoundary() {
         <body className="h-full bg-honey-50 antialiased dark:bg-night-900">
           <ThemeBody ssrTheme={Boolean(theme)} />
           <Layout>
-            <div className="container flex flex-1 flex-col items-center justify-center space-y-2 space-x-2">
+            <div className="container mt-12 flex flex-1 flex-col items-center justify-center space-y-2">
               <h1 className="text-4xl font-bold text-night-900 dark:text-honey-25">
                 Oops!
               </h1>
