@@ -221,7 +221,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         {preview ? <Preview /> : null}
         {children}
       </div>
-      <footer className="container mt-8">
+      <footer className="container mt-8 lg:mt-20">
         <div className="flex grid-cols-5 flex-col gap-6 xl:grid">
           <div className="flex xl:col-span-3">
             <Card
@@ -234,7 +234,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               </button>
             </Card>
           </div>
-          <div className="xl:col-span-2">
+          <div className="flex xl:col-span-2">
             <Card
               title="Join the Community"
               description="Become a member of Treasure's vibrant community!"
