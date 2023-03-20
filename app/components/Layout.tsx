@@ -229,9 +229,13 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               description="Apply to become an official Treasure Game Partner to supercharge your game."
               image={Card1}
             >
-              <button className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base">
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeeom1s9R48ZGRXzx5B-MeYahfVa2DoKVBqS8hu63wwLxykpQ/viewform"
+                rel="noopener noreferrer"
+                className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base"
+              >
                 Apply
-              </button>
+              </a>
             </Card>
           </div>
           <div className="flex xl:col-span-2">
