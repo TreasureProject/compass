@@ -35,4 +35,5 @@
     "title title"
     "author author";
   display: grid;
+  grid-template-rows: repeat(4, minmax(0, min-content));
 }

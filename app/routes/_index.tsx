@@ -8,7 +8,6 @@ import {
 } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
-import type { LoaderArgs } from "@remix-run/node";
 
 import { Layout } from "~/components/Layout";
 import { getAllCategories } from "~/utils/client";

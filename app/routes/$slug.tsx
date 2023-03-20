@@ -68,6 +68,19 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
+  const additionalBlogPosts = await contenfulDeliverySdk(
+    preview
+  ).additionalBlogPosts({
+    categories: post.category as string[],
+    preview,
+  });
+
+  // get random 3 posts from additionalBlogPosts
+  const randomPosts =
+    additionalBlogPosts.blogPostCollection?.items
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3) ?? [];
+
   const textToString = parseDocument(post);
 
   return json({
@@ -76,11 +89,16 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       text: textToString,
       date: formatDate(post.date),
     },
+    // get random 3 posts
+    additionalBlogPosts: randomPosts.map((post) => ({
+      ...post,
+      date: formatDate(post?.date),
+    })),
   });
 };
 
 export default function BlogPost() {
-  const { post } = useLoaderData<typeof loader>();
+  const { post, additionalBlogPosts } = useLoaderData<typeof loader>();
   const [ids, setIds] = React.useState<{ id: string; name: string }[]>([]);
   const isHydrated = useHydrated();
   const currentHash = isHydrated ? location.hash.replace("#", "") : "";
@@ -211,6 +229,86 @@ export default function BlogPost() {
               __html: post.text,
             }}
           />
+          <div className="mt-16 rounded-2xl border border-honey-400 bg-honey-25 p-8 dark:border-night-800 dark:bg-[#131D2E] sm:mt-28 sm:p-10">
+            <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+              <div className="space-y-1 text-center sm:mr-24 sm:text-left">
+                <p className="text-lg font-bold text-night-900 dark:text-honey-200 lg:text-2xl">
+                  Subscribe to our newsletter
+                </p>
+                <p className="text-sm text-night-700 dark:text-night-500 lg:text-base">
+                  Be the first to receive the latest Treasures updates,
+                  announcements and more.
+                </p>
+              </div>
+              <a
+                href="https://treasuredao.substack.com/"
+                rel="noopener noreferrer"
+                className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base"
+              >
+                Subscribe
+              </a>
+            </div>
+          </div>
+          {additionalBlogPosts.length > 0 ? (
+            <div className="mt-14 border-t border-t-honey-600 py-6 dark:border-t-night-700 sm:mt-20">
+              <p className="text-lg font-semibold text-night-900 dark:text-honey-50 sm:text-xl">
+                Explore more
+              </p>
+              <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+                {additionalBlogPosts.map((post) => (
+                  <Link
+                    to={`/${post?.slug}?${searchParams.toString()}`}
+                    key={post?.slug}
+                    className="post relative gap-2 sm:gap-4"
+                  >
+                    <figure className="relative h-48 [grid-area:image]">
+                      <img
+                        src={toWebp(post?.coverImage?.url || "")}
+                        className="h-full w-full rounded-xl object-cover shadow"
+                        alt={`Cover for ${post?.title}`}
+                      />
+                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
+                    </figure>
+                    <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
+                      {post?.title}
+                    </h3>
+                    <div className="flex items-center space-x-3 [grid-area:author]">
+                      <figure className="flex items-center gap-2">
+                        {post?.authorCollection?.items.length === 1 ? (
+                          <>
+                            <img
+                              src={toWebp(
+                                getAuthors(post)[0]?.image?.url || ""
+                              )}
+                              className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                              alt={`Avatar for ${getAuthors(post)[0]?.name}`}
+                            />
+                            <figcaption className="text-xs font-medium text-night-800 dark:text-night-200">
+                              <span>{getAuthors(post)[0]?.name}</span>
+                            </figcaption>
+                          </>
+                        ) : (
+                          <div className="flex -space-x-2">
+                            {authors.map((author) => (
+                              <img
+                                key={author?.name}
+                                src={toWebp(author?.image?.url || "")}
+                                className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                                alt={`Avatar for ${author?.name}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </figure>
+                      <span className="text-xs font-medium text-night-600 [grid-area:date]">
+                        <span>{post.date}</span>
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
         <aside className="col-span-2 col-start-7 hidden lg:block">
           <div className="sticky top-20 px-6">

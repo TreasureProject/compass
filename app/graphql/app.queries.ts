@@ -79,3 +79,18 @@ export const getBlogPost = gql`
     }
   }
 `;
+
+export const additionalBlogPosts = gql`
+  ${ITEMS_FRAGMENT}
+  query additionalBlogPosts($preview: Boolean!, $categories: [String!]!) {
+    blogPostCollection(
+      where: { category_contains_some: $categories }
+      limit: 6
+      preview: $preview
+    ) {
+      items {
+        ...ItemsFragment
+      }
+    }
+  }
+`;
