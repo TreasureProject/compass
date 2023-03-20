@@ -43,3 +43,17 @@ export const toWebp = (url: string) => {
     return url;
   }
 };
+
+export const getSrcSet = (url: string) => {
+  const srcSet = [
+    `${url}&w=640 640w`,
+    `${url}&w=720 720w`,
+    `${url}&w=750 750w`,
+    `${url}&w=786 786w`,
+    `${url}&w=828 828w`,
+    `${url}&w=1100 1100w`,
+    `${url}&w=1400 1400w`,
+  ].join(", ");
+
+  return srcSet;
+};

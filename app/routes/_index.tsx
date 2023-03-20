@@ -12,7 +12,7 @@ import React from "react";
 
 import { Layout } from "~/components/Layout";
 import { getAllCategories } from "~/utils/client";
-import { getAuthors, toWebp } from "~/utils/lib";
+import { getAuthors, getSrcSet, toWebp } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
 import { getSocialMetas, getUrl } from "~/utils/seo";
 
@@ -53,6 +53,7 @@ export default function Index() {
   const { posts } = useRouteLoaderData("root") as SerializeFrom<
     typeof rootLoader
   >;
+
   const [categories, setActiveCategories] = React.useState([
     {
       name: "all",
@@ -90,14 +91,16 @@ export default function Index() {
           prefetch="render"
         >
           <figure className="relative -inset-y-4 inset-x-0 [grid-area:image] lg:absolute">
-            <picture className="top-0 left-0 h-full w-full lg:absolute">
+            <div className="top-0 left-0 h-full w-full lg:absolute">
               <img
-                src={toWebp(latestPost?.coverImage?.url || "")}
-                className="h-full w-full rounded-xl object-cover shadow-xl"
-                alt=""
+                src={`${toWebp(
+                  latestPost?.coverImage?.url || ""
+                )}&fit=scale&w=1200&h=800`}
+                className="h-full w-full rounded-xl bg-honey-50 object-cover shadow"
+                alt={latestPost?.title || "Latest blog post"}
               />
-            </picture>
-            <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
+            </div>
+            <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-transparent dark:ring-night-500/10"></div>
           </figure>
 
           <h2 className="text-lg font-semibold text-night-900 [grid-area:title] dark:text-honey-200 lg:pl-8 lg:text-2xl xl:text-3xl">
@@ -133,7 +136,7 @@ export default function Index() {
               )}
             </figure>
             <span className="text-xs font-medium text-night-600 [grid-area:date] dark:text-night-500">
-              <span>{latestPost.date}</span>
+              <span>{latestPost?.date}</span>
             </span>
           </div>
           <p className="text-sm font-semibold text-ruby-900 [grid-area:readMore] lg:pl-8">
@@ -186,10 +189,10 @@ export default function Index() {
                   <figure className="relative h-48 [grid-area:image]">
                     <img
                       src={toWebp(post?.coverImage?.url || "")}
-                      className="h-full w-full rounded-xl object-cover shadow"
+                      className="h-full w-full rounded-xl object-cover shadow-sm"
                       alt={`Cover for ${post?.title}`}
                     />
-                    <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
+                    <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-transparent dark:ring-night-500/10"></div>
                   </figure>
                   <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
                     {post?.title}
@@ -221,7 +224,7 @@ export default function Index() {
                       )}
                     </figure>
                     <span className="text-xs font-medium text-night-600 [grid-area:date]">
-                      <span>{post.date}</span>
+                      <span>{post?.date}</span>
                     </span>
                   </div>
                 </MotionLink>

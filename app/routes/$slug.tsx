@@ -23,6 +23,7 @@ import {
   decimalToTime,
   formatDate,
   getAuthors,
+  getSrcSet,
   slugify,
   toWebp,
 } from "~/utils/lib";
@@ -175,6 +176,8 @@ export default function BlogPost() {
     });
   }, []);
 
+  const resizedCoverImg = toWebp(post.coverImage?.url || "");
+
   return (
     <Layout>
       <main className="container mt-2 lg:mt-12 lg:grid lg:grid-cols-8 lg:gap-10">
@@ -228,14 +231,14 @@ export default function BlogPost() {
             <Balancer>{post.title}</Balancer>
           </h1>
           <div className="mt-6 gap-2">
-            <figure className="relative h-48 sm:h-96">
-              <picture>
-                <img
-                  src={toWebp(post.coverImage?.url || "")}
-                  className="aspect-video h-full w-full rounded-xl object-cover object-center shadow"
-                  alt={post.title || "Cover"}
-                />
-              </picture>
+            <figure className="relative overflow-hidden rounded-xl">
+              <img
+                sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px"
+                srcSet={getSrcSet(resizedCoverImg)}
+                src={`${resizedCoverImg}&fit=fill&w=700`}
+                className="h-full w-full bg-honey-50 shadow"
+                alt={post.title || "Cover"}
+              />
               <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
             </figure>
           </div>
