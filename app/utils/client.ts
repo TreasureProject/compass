@@ -5,7 +5,7 @@ import { getSdk as getExchangeSdk } from "~/graphql/app.generated";
 import { createTypeLevelClient, initUntypeable } from "untypeable";
 
 // contentful API
-export const contenfulDeliverySdk = (preview: boolean) =>
+export const contenfulDeliverySdk = (preview = false) =>
   getExchangeSdk(
     new GraphQLClient(process.env.CONTENTFUL_ENDPOINT as string, {
       headers: {

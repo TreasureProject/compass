@@ -40,6 +40,14 @@ export const getAllBlogPosts = gql`
   }
 `;
 
+export const findBlogById = gql`
+  query findBlogById($id: String!) {
+    blogPost(id: $id) {
+      slug
+    }
+  }
+`;
+
 export const getBlogPost = gql`
   ${ITEMS_FRAGMENT}
   query getBlogPost($slug: String!, $preview: Boolean!) {
