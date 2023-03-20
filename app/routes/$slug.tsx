@@ -1,4 +1,9 @@
-import type { LoaderArgs, MetaFunction, LinksFunction } from "@remix-run/node";
+import type {
+  LoaderArgs,
+  MetaFunction,
+  LinksFunction,
+  HeadersFunction,
+} from "@remix-run/node";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { json } from "@remix-run/node";
 import { contenfulDeliverySdk } from "~/utils/client";
@@ -26,6 +31,9 @@ import Balancer from "react-wrap-balancer";
 import { generateTitle, getSocialMetas, getUrl } from "~/utils/seo";
 import type { loader as rootLoader } from "~/root";
 import highlightStyles from "highlight.js/styles/agate.css";
+import { commonHeaders } from "~/utils/misc";
+
+export const headers: HeadersFunction = commonHeaders;
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: highlightStyles },

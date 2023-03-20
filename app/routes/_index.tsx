@@ -1,5 +1,6 @@
+import type { MetaFunction, HeadersFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { MetaFunction, SerializeFrom } from "@remix-run/server-runtime";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 import {
   Link,
   useLoaderData,
@@ -14,6 +15,7 @@ import { getAllCategories } from "~/utils/client";
 import { getAuthors, toWebp } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
 import { getSocialMetas, getUrl } from "~/utils/seo";
+import { commonHeaders } from "~/utils/misc";
 
 export const meta: MetaFunction = (args) => {
   const { requestInfo } = args.parentsData.root as SerializeFrom<
@@ -26,6 +28,8 @@ export const meta: MetaFunction = (args) => {
 };
 
 const MotionLink = motion(Link);
+
+export const headers: HeadersFunction = commonHeaders;
 
 export const loader = async () => {
   const allCategories = await getAllCategories();
