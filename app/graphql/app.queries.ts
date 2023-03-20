@@ -41,8 +41,8 @@ export const getAllBlogPosts = gql`
 `;
 
 export const findBlogById = gql`
-  query findBlogById($id: String!) {
-    blogPost(id: $id, preview: true) {
+  query findBlogById($id: String!, $preview: Boolean!) {
+    blogPost(id: $id, preview: $preview) {
       slug
     }
   }

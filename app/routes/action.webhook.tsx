@@ -190,21 +190,20 @@ export const action = async (args: ActionArgs) => {
 
   const payload = (await request.json()) as EntryEvent | DeleteEntryEvent;
 
-  if (payload.sys.type === "DeletedEntry") {
-    const deletedBlog = await contenfulDeliverySdk(true).findBlogById({
-      id: payload.sys.id,
-    });
+  const previewClient = payload.sys.type === "DeletedEntry";
 
-    if (!deletedBlog.blogPost) {
-      throw badRequest("Blog not found");
-    }
+  const blog = await contenfulDeliverySdk(previewClient).findBlogById({
+    id: payload.sys.id,
+    preview: previewClient,
+  });
 
-    const urls = [BASE_URL, `${BASE_URL}/${deletedBlog.blogPost.slug}`];
-
-    await purgeCloudflare(urls);
-  } else {
-    await purgeCloudflare([BASE_URL]);
+  if (!blog.blogPost) {
+    throw badRequest("Blog not found");
   }
+
+  const urls = [BASE_URL, `${BASE_URL}/${blog.blogPost.slug}`];
+
+  await purgeCloudflare(urls);
 
   return json({ success: true });
 };
