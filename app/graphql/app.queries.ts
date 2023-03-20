@@ -42,7 +42,7 @@ export const getAllBlogPosts = gql`
 
 export const findBlogById = gql`
   query findBlogById($id: String!) {
-    blogPost(id: $id) {
+    blogPost(id: $id, preview: true) {
       slug
     }
   }

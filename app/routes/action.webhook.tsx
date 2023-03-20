@@ -191,7 +191,7 @@ export const action = async (args: ActionArgs) => {
   const payload = (await request.json()) as EntryEvent | DeleteEntryEvent;
 
   if (payload.sys.type === "DeletedEntry") {
-    const deletedBlog = await contenfulDeliverySdk().findBlogById({
+    const deletedBlog = await contenfulDeliverySdk(true).findBlogById({
       id: payload.sys.id,
     });
 
