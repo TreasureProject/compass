@@ -217,7 +217,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </header>
-      <div className="relative flex-1">
+      <div className="relative flex flex-1">
         {preview ? <Preview /> : null}
         {children}
       </div>
