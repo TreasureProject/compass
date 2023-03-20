@@ -57,7 +57,7 @@ export const meta: MetaFunction = (args) => {
 
   return getSocialMetas({
     url: getUrl(requestInfo),
-    title: generateTitle(data.post.title || ""),
+    title: generateTitle(data?.post.title || ""),
   });
 };
 
