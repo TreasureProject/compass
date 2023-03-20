@@ -95,7 +95,7 @@ export default function Index() {
               <img
                 src={`${toWebp(
                   latestPost?.coverImage?.url || ""
-                )}&fit=scale&w=1200&h=800`}
+                )}&fit=scale&w=1500&h=700`}
                 className="h-full w-full rounded-xl bg-honey-50 object-cover shadow"
                 alt={latestPost?.title || "Latest blog post"}
               />
