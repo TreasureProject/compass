@@ -31,13 +31,20 @@ import Balancer from "react-wrap-balancer";
 import { generateTitle, getSocialMetas, getUrl } from "~/utils/seo";
 import type { loader as rootLoader } from "~/root";
 import highlightStyles from "highlight.js/styles/agate.css";
-import { commonHeaders } from "~/utils/misc";
-
-export const headers: HeadersFunction = commonHeaders;
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: highlightStyles },
 ];
+
+export const headers: HeadersFunction = ({ parentHeaders }) => {
+  const headers = new Headers();
+
+  if (parentHeaders.has("Cache-Control")) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    headers.set("Cache-Control", parentHeaders.get("Cache-Control")!);
+  }
+  return headers;
+};
 
 export const meta: MetaFunction = (args) => {
   const { requestInfo } = args.parentsData.root as SerializeFrom<

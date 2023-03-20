@@ -1,5 +1,10 @@
 import { useMemo, useEffect } from "react";
-import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+import type {
+  HeadersFunction,
+  LinksFunction,
+  LoaderArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -32,6 +37,7 @@ import {
 import { contenfulDeliverySdk } from "./utils/client";
 import { formatDate } from "./utils/lib";
 import { getDomainUrl } from "./utils/misc";
+import { cacheHeader } from "pretty-cache-header";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -89,6 +95,16 @@ function getPublicKeys(env: Env): Env {
   return publicKeys;
 }
 
+export const headers: HeadersFunction = ({ loaderHeaders }) => {
+  const headers = new Headers();
+
+  if (loaderHeaders.has("Cache-Control")) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    headers.set("Cache-Control", loaderHeaders.get("Cache-Control")!);
+  }
+  return headers;
+};
+
 export const loader = async ({ request }: LoaderArgs) => {
   const themeSession = await getThemeSession(request);
   const requestUrl = new URL(request.url);
@@ -102,19 +118,35 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   const posts = data.blogPostCollection?.items ?? [];
 
-  return json({
-    requestInfo: {
-      origin: getDomainUrl(request),
-      path: new URL(request.url).pathname,
+  const headers = {
+    "Cache-Control": preview
+      ? cacheHeader({
+          public: true,
+          noCache: true,
+        })
+      : cacheHeader({
+          public: true,
+          maxAge: "1hour",
+          staleWhileRevalidate: "1min",
+        }),
+  };
+
+  return json(
+    {
+      requestInfo: {
+        origin: getDomainUrl(request),
+        path: new URL(request.url).pathname,
+      },
+      ENV: getPublicKeys(process.env),
+      theme: themeSession.getTheme(),
+      preview,
+      posts: posts.map((post) => ({
+        ...post,
+        date: formatDate(post?.date),
+      })),
     },
-    ENV: getPublicKeys(process.env),
-    theme: themeSession.getTheme(),
-    preview,
-    posts: posts.map((post) => ({
-      ...post,
-      date: formatDate(post?.date),
-    })),
-  });
+    { status: 200, headers }
+  );
 };
 
 function App() {

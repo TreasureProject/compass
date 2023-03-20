@@ -29,11 +29,17 @@ export const decimalToTime = (minutes: number) =>
       : `${Math.round(minutes)} min`
   } read`;
 
-export const formatDate = (date: any) =>
-  format(Date.parse(date), "MMM. dd, yyyy");
+export const formatDate = (date: any) => {
+  if (!date) return "";
+  return format(Date.parse(date), "MMM. dd, yyyy");
+};
 
 export const toWebp = (url: string) => {
-  const u = new URL(url);
-  u.searchParams.set("fm", "webp");
-  return u.toString();
+  try {
+    const u = new URL(url);
+    u.searchParams.set("fm", "webp");
+    return u.toString();
+  } catch (e) {
+    return url;
+  }
 };

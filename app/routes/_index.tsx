@@ -15,7 +15,6 @@ import { getAllCategories } from "~/utils/client";
 import { getAuthors, toWebp } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
 import { getSocialMetas, getUrl } from "~/utils/seo";
-import { commonHeaders } from "~/utils/misc";
 
 export const meta: MetaFunction = (args) => {
   const { requestInfo } = args.parentsData.root as SerializeFrom<
@@ -29,7 +28,15 @@ export const meta: MetaFunction = (args) => {
 
 const MotionLink = motion(Link);
 
-export const headers: HeadersFunction = commonHeaders;
+export const headers: HeadersFunction = ({ parentHeaders }) => {
+  const headers = new Headers();
+
+  if (parentHeaders.has("Cache-Control")) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    headers.set("Cache-Control", parentHeaders.get("Cache-Control")!);
+  }
+  return headers;
+};
 
 export const loader = async () => {
   const allCategories = await getAllCategories();
