@@ -265,6 +265,7 @@ export default function BlogPost() {
               <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 {additionalBlogPosts.map((post) => (
                   <Link
+                    prefetch="intent"
                     to={`/${post?.slug}?${searchParams.toString()}`}
                     key={post?.slug}
                     className="post relative gap-2 sm:gap-4"

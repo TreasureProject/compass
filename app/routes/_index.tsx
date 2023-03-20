@@ -78,6 +78,7 @@ export default function Index() {
         <Link
           to={`/${latestPost?.slug}?${searchParams.toString()}`}
           className="latestPost relative gap-4 py-8"
+          prefetch="render"
         >
           <figure className="relative -inset-y-4 inset-x-0 [grid-area:image] lg:absolute">
             <picture className="top-0 left-0 h-full w-full lg:absolute">
@@ -168,6 +169,7 @@ export default function Index() {
               return (
                 <MotionLink
                   layout
+                  prefetch="intent"
                   to={`/${post?.slug}?${searchParams.toString()}`}
                   key={post?.slug}
                   className="post relative gap-2 sm:gap-4"
