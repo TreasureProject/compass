@@ -42,6 +42,8 @@ export const headers: HeadersFunction = ({ parentHeaders }) => {
   if (parentHeaders.has("Cache-Control")) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     headers.set("Cache-Control", parentHeaders.get("Cache-Control")!);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    headers.set("CDN-Cache-Control", parentHeaders.get("Cache-Control")!);
   }
   return headers;
 };

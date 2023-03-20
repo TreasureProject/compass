@@ -101,6 +101,8 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
   if (loaderHeaders.has("Cache-Control")) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     headers.set("Cache-Control", loaderHeaders.get("Cache-Control")!);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    headers.set("CDN-Cache-Control", loaderHeaders.get("Cache-Control")!);
   }
   return headers;
 };
