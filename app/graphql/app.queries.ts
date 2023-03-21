@@ -18,6 +18,7 @@ const ITEMS_FRAGMENT = gql`
     subtitle
     slug
     date
+    keywords
     coverImage {
       url
     }

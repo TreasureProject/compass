@@ -58,6 +58,9 @@ export const meta: MetaFunction = (args) => {
   return getSocialMetas({
     url: getUrl(requestInfo),
     title: generateTitle(data?.post.title || ""),
+    description: data?.post.subtitle || "",
+    image: data.ogImageUrl,
+    keywords: data?.post.keywords || "",
   });
 };
 
@@ -101,12 +104,17 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const textToString = parseDocument(post);
 
+  const ogImageUrl =
+    `${requestUrl.origin}/resource/og?slug=${slug}` +
+    (preview ? `&preview=${process.env.PREVIEW_SECRET}` : "");
+
   return json({
     post: {
       ...post,
       text: textToString,
       date: formatDate(post.date),
     },
+    ogImageUrl,
     // get random 3 posts
     additionalBlogPosts: randomPosts.map((post) => ({
       ...post,

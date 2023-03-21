@@ -2,7 +2,8 @@ export function getSocialMetas({
   url,
   title = generateTitle(),
   description = "The magic of play. Get the latest news and updates from Treasure, the decentralized gaming ecosystem.",
-  keywords = "",
+  keywords,
+  image,
 }: {
   image?: string;
   url: string;
@@ -14,17 +15,17 @@ export function getSocialMetas({
     title,
     description,
     keywords,
-    // image,
+    image,
     "og:url": url,
     "og:title": title,
     "og:description": description,
-    // "og:image": image,
-    // "twitter:card": image ? "summary_large_image" : "summary",
+    "og:image": image,
+    "twitter:card": image ? "summary_large_image" : "summary",
     "twitter:creator": "@Treasure_DAO",
     "twitter:site": "@Treasure_DAO",
     "twitter:title": title,
     "twitter:description": description,
-    // "twitter:image": image,
+    "twitter:image": image,
     "twitter:alt": title,
   };
 }

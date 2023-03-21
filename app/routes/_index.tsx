@@ -12,7 +12,7 @@ import React from "react";
 
 import { Layout } from "~/components/Layout";
 import { getAllCategories } from "~/utils/client";
-import { getAuthors, getSrcSet, toWebp } from "~/utils/lib";
+import { getAuthors, toWebp } from "~/utils/lib";
 import type { loader as rootLoader } from "~/root";
 import { getSocialMetas, getUrl } from "~/utils/seo";
 
