@@ -51,8 +51,9 @@ export const generateOgImage = async (
             color: "#FFFAEF",
             position: "absolute",
             width: "100%",
-            bottom: "2.5rem",
+            bottom: "3rem",
             left: "4.5rem",
+            lineHeight: "3rem",
           }}
         >
           {title}
