@@ -105,7 +105,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const textToString = parseDocument(post);
 
   const ogImageUrl =
-    `${requestUrl.origin}/resource/og?slug=${slug}` +
+    `${requestUrl.origin}/resources/og?slug=${slug}` +
     (preview ? `&preview=${process.env.PREVIEW_SECRET}` : "");
 
   return json({

@@ -21,8 +21,11 @@ export const meta: MetaFunction = (args) => {
     typeof rootLoader
   >;
 
+  const url = getUrl(requestInfo);
+
   return getSocialMetas({
-    url: getUrl(requestInfo),
+    url,
+    image: url + "/img/og-banner.jpg",
   });
 };
 
