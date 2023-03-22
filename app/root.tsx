@@ -177,7 +177,7 @@ function App() {
   }, [state, transition.state]);
 
   return (
-    <html lang="en" className={`h-full scroll-smooth ${theme ?? ""}`}>
+    <html lang="en" className={`h-full ${theme ?? ""}`}>
       <head>
         <Meta />
         <Links />

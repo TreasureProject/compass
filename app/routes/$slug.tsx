@@ -32,6 +32,16 @@ import Balancer from "react-wrap-balancer";
 import { generateTitle, getSocialMetas, getUrl } from "~/utils/seo";
 import type { loader as rootLoader } from "~/root";
 import highlightStyles from "highlight.js/styles/agate.css";
+import { motion } from "framer-motion";
+
+function remToPx(remValue: number) {
+  const rootFontSize =
+    typeof window === "undefined"
+      ? 16
+      : parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+
+  return parseFloat(String(remValue)) * rootFontSize;
+}
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: highlightStyles },
@@ -113,14 +123,50 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   });
 };
 
+const VisibleSectionsMarker = ({
+  visibleSections,
+  headerSections,
+}: {
+  visibleSections: string[];
+  headerSections: {
+    id: string;
+    name: string;
+    ref: HTMLHeadingElement;
+    offsetRem: number;
+  }[];
+}) => {
+  const itemHeight = remToPx(2);
+  const firstVisibleSectionIndex = Math.max(
+    0,
+    headerSections.findIndex((section) => section.id === visibleSections[0])
+  );
+
+  const height = visibleSections.length * itemHeight;
+
+  const top = firstVisibleSectionIndex * itemHeight;
+
+  return (
+    <motion.div
+      layout
+      className="absolute left-6 h-6 w-[2px] bg-ruby-900"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { delay: 0.4 } }}
+      exit={{ opacity: 0 }}
+      style={{ top, height }}
+    />
+  );
+};
+
 export default function BlogPost() {
   const { post, additionalBlogPosts } = useLoaderData<typeof loader>();
-  const [ids, setIds] = React.useState<{ id: string; name: string }[]>([]);
+  const [headerSections, setHeaderSections] = React.useState<
+    { id: string; name: string; ref: HTMLHeadingElement; offsetRem: number }[]
+  >([]);
   const isHydrated = useHydrated();
   const currentHash = isHydrated ? location.hash.replace("#", "") : "";
   const params = useParams();
   const [searchParams] = useSearchParams();
-
+  const [visibleSections, setVisibleSections] = React.useState<string[]>([]);
   const authors = getAuthors(post);
 
   React.useEffect(() => {
@@ -145,10 +191,12 @@ export default function BlogPost() {
     const headers = [...h2s, ...h3s];
 
     headers.forEach((header) => {
-      setIds((ids) => [
-        ...ids,
+      setHeaderSections((section) => [
+        ...section,
         {
+          ref: header,
           id: header.id,
+          offsetRem: 6,
           name: header.innerText,
         },
       ]);
@@ -161,6 +209,48 @@ export default function BlogPost() {
       header.appendChild(hashAnchor);
     });
   }, []);
+
+  React.useEffect(() => {
+    function checkVisibleSections() {
+      const { innerHeight, scrollY } = window;
+      const newVisibleSections = [];
+
+      for (
+        let sectionIndex = 0;
+        sectionIndex < headerSections.length;
+        sectionIndex++
+      ) {
+        const { id, ref } = headerSections[sectionIndex];
+        const top = ref.getBoundingClientRect().top + scrollY;
+
+        const nextSection = headerSections[sectionIndex + 1];
+        const bottom =
+          (nextSection?.ref.getBoundingClientRect().top ?? Infinity) +
+          scrollY -
+          remToPx(nextSection?.offsetRem ?? 0);
+
+        if (
+          (top > scrollY && top < scrollY + innerHeight) ||
+          (bottom > scrollY && bottom < scrollY + innerHeight) ||
+          (top <= scrollY && bottom >= scrollY + innerHeight)
+        ) {
+          newVisibleSections.push(id);
+        }
+      }
+
+      setVisibleSections(newVisibleSections);
+    }
+
+    const raf = window.requestAnimationFrame(() => checkVisibleSections());
+    window.addEventListener("scroll", checkVisibleSections, { passive: true });
+    window.addEventListener("resize", checkVisibleSections);
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", checkVisibleSections);
+      window.removeEventListener("resize", checkVisibleSections);
+    };
+  }, [setVisibleSections, headerSections]);
 
   const resizedCoverImg = toWebp(post.coverImage?.url || "");
 
@@ -330,16 +420,21 @@ export default function BlogPost() {
         </div>
         <aside className="col-span-2 col-start-7 hidden lg:block">
           <div className="sticky top-20 px-6">
-            <ul className="border-l-2 border-honey-600 dark:border-night-600">
-              {ids.map((item) => {
+            <VisibleSectionsMarker
+              visibleSections={visibleSections}
+              headerSections={headerSections}
+            />
+
+            <ul className="border-l-2 border-transparent">
+              {headerSections.map((item) => {
                 return (
                   <li
                     key={item.name}
                     className={cn(
-                      currentHash === item.id
-                        ? "border-ruby-900 font-bold text-ruby-900 dark:text-night-100"
+                      visibleSections.includes(item.id)
+                        ? "font-bold text-ruby-900 dark:text-night-100"
                         : "border-transparent text-night-700 dark:text-night-400",
-                      "-ml-[2px] overflow-hidden text-ellipsis whitespace-nowrap border-l-2 py-1 pl-4 hover:border-ruby-700 hover:text-ruby-800"
+                      "relative -ml-[2px] overflow-hidden text-ellipsis whitespace-nowrap py-1 pl-4 hover:text-ruby-800"
                     )}
                   >
                     <Link
