@@ -7,7 +7,7 @@ import { contenfulDeliverySdk } from "~/utils/client";
 import { generateOgImage } from "~/utils/og.server";
 
 export const OG_IMAGE_WIDTH = 1200;
-export const OG_IMAGE_HEIGHT = 630;
+export const OG_IMAGE_HEIGHT = 620;
 
 export const loader = async ({ request }: LoaderArgs) => {
   const { origin, searchParams } = new URL(request.url);

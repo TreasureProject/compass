@@ -24,7 +24,6 @@ import {
   formatDate,
   getAuthors,
   getSrcSet,
-  slugify,
   toWebp,
 } from "~/utils/lib";
 import { getThemeSession } from "~/utils/theme.server";
@@ -100,7 +99,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const randomPosts =
     additionalBlogPosts.blogPostCollection?.items
       .sort(() => Math.random() - 0.5)
-      .slice(0, 3) ?? [];
+      .slice(0, 3)
+      .filter((item) => item?.slug !== slug) ?? [];
 
   const textToString = parseDocument(post);
 
@@ -154,15 +154,6 @@ export default function BlogPost() {
 
     const headers = [...h2s, ...h3s];
 
-    const anchors = Array.from(
-      container ? container.querySelectorAll("a") : []
-    );
-
-    anchors.forEach((anchor) => {
-      anchor.target = "_blank";
-      anchor.rel = "noopener noreferrer";
-    });
-
     headers.forEach((header) => {
       setIds((ids) => [
         ...ids,
@@ -171,12 +162,9 @@ export default function BlogPost() {
           name: header.innerText,
         },
       ]);
-      const id = slugify(header.innerText);
-      header.id = id;
-      header.className = "scroll-mt-20 sm:scroll-mt-6 group";
 
       const hashAnchor = document.createElement("a");
-      hashAnchor.href = `#${id}`;
+      hashAnchor.href = `#${header.id}`;
       hashAnchor.className =
         "group-hover:opacity-100 opacity-0 ml-1 after:content-['#'] after:text-gray-400 !no-underline";
 
@@ -270,6 +258,7 @@ export default function BlogPost() {
               </div>
               <a
                 href="https://treasuredao.substack.com/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base"
               >
@@ -285,6 +274,7 @@ export default function BlogPost() {
               <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 {additionalBlogPosts.map((post) => (
                   <Link
+                    reloadDocument
                     prefetch="intent"
                     to={`/${post?.slug}?${searchParams.toString()}`}
                     key={post?.slug}

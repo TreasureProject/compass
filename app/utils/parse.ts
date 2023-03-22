@@ -1,9 +1,22 @@
 import type { RenderNode } from "@contentful/rich-text-html-renderer";
 import { documentToHtmlString } from "@contentful/rich-text-html-renderer";
+import type { Block, Inline } from "@contentful/rich-text-types";
+import { INLINES } from "@contentful/rich-text-types";
 import { BLOCKS } from "@contentful/rich-text-types";
 import type { GetBlogPostQuery } from "~/graphql/app.generated";
-import { toWebp } from "./lib";
+import { slugify, toWebp } from "./lib";
 import highlightjs from "highlight.js";
+
+const textRenderer = (node: Block | Inline) => {
+  const element = node.nodeType === BLOCKS.HEADING_2 ? "h2" : "h3";
+  if (node.content[0].nodeType === "text") {
+    return `<${element} class="scroll-mt-20 sm:scroll-mt-6 group" id="${slugify(
+      node.content[0].value
+    )}">${node.content[0].value}</${element}>`;
+  }
+
+  return "";
+};
 
 export const parseDocument = (
   post: NonNullable<
@@ -13,6 +26,15 @@ export const parseDocument = (
   const { json, links } = post?.text ?? {};
 
   const renderNodeOptions: RenderNode = {
+    [INLINES.HYPERLINK]: (node) => {
+      if (node.content[0].nodeType === "text") {
+        return `<a href="${node.data.uri}" target="_blank" rel="noopener noreferrer">${node.content[0].value}</a>`;
+      }
+
+      return "";
+    },
+    [BLOCKS.HEADING_2]: textRenderer,
+    [BLOCKS.HEADING_3]: textRenderer,
     [BLOCKS.EMBEDDED_ENTRY]: (node) => {
       const entry = links?.entries.block.find((i) => {
         if (i?.__typename === "CodeBlock") {
@@ -43,5 +65,7 @@ export const parseDocument = (
     },
   };
 
-  return documentToHtmlString(json, { renderNode: renderNodeOptions });
+  return documentToHtmlString(json, {
+    renderNode: renderNodeOptions,
+  });
 };

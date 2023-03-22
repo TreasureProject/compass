@@ -192,6 +192,25 @@ function App() {
         <Scripts />
         <ScrollRestoration />
         <LiveReload />
+        <script
+          src="https://efficient-bloc-party.treasure.lol/script.js"
+          data-site="XBZCEUKN"
+          defer
+          data-auto="false"
+        />
+        {process.env.NODE_ENV === "production" ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+            window.addEventListener('load', function() {
+             if (!new URLSearchParams(window.location.search).has('preview')) {
+              window.fathom.trackPageview();
+             }
+            })
+          `,
+            }}
+          />
+        ) : null}
       </body>
     </html>
   );

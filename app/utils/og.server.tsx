@@ -3,7 +3,7 @@ import { ImageResponse } from "@m5r/og";
 import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from "~/routes/resources.og";
 
 const fontSans = (baseUrl: string) =>
-  fetch(new URL(`${baseUrl}/fonts/ABCWhyte-Medium.otf`)).then((res) =>
+  fetch(new URL(`${baseUrl}/fonts/ABCWhyte-Bold.otf`)).then((res) =>
     res.arrayBuffer()
   );
 
@@ -51,7 +51,7 @@ export const generateOgImage = async (
             color: "#FFFAEF",
             position: "absolute",
             width: "100%",
-            bottom: "3rem",
+            bottom: "2.5rem",
             left: "4.5rem",
             lineHeight: "3rem",
           }}
