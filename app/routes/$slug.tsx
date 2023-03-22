@@ -5,11 +5,12 @@ import type {
   HeadersFunction,
 } from "@remix-run/node";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { json } from "@remix-run/node";
+import { defer } from "@remix-run/node";
 import { contenfulDeliverySdk } from "~/utils/client";
 import invariant from "tiny-invariant";
 import { Layout } from "~/components/Layout";
 import {
+  Await,
   Link,
   useLoaderData,
   useParams,
@@ -17,7 +18,7 @@ import {
 } from "@remix-run/react";
 import { notFound, useHydrated } from "remix-utils";
 import { parseDocument } from "~/utils/parse";
-import React from "react";
+import React, { Suspense } from "react";
 import {
   cn,
   decimalToTime,
@@ -88,19 +89,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     });
   }
 
-  const additionalBlogPosts = await contenfulDeliverySdk(
-    preview
-  ).additionalBlogPosts({
-    categories: post.category as string[],
-    preview,
-  });
-
-  // get random 3 posts from additionalBlogPosts
-  const randomPosts =
-    additionalBlogPosts.blogPostCollection?.items
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-      .filter((item) => item?.slug !== slug) ?? [];
+  const additionalBlogPosts = contenfulDeliverySdk(preview).additionalBlogPosts(
+    {
+      categories: post.category as string[],
+      preview,
+    }
+  );
 
   const textToString = parseDocument(post);
 
@@ -108,18 +102,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     `${requestUrl.origin}/resources/og?slug=${slug}` +
     (preview ? `&preview=${process.env.PREVIEW_SECRET}` : "");
 
-  return json({
+  return defer({
     post: {
       ...post,
       text: textToString,
       date: formatDate(post.date),
     },
     ogImageUrl,
-    // get random 3 posts
-    additionalBlogPosts: randomPosts.map((post) => ({
-      ...post,
-      date: formatDate(post?.date),
-    })),
+    additionalBlogPosts,
   });
 };
 
@@ -266,68 +256,77 @@ export default function BlogPost() {
               </a>
             </div>
           </div>
-          {additionalBlogPosts.length > 0 ? (
-            <div className="mt-14 border-t border-t-honey-600 py-6 dark:border-t-night-700 sm:mt-20">
-              <p className="text-lg font-semibold text-night-900 dark:text-honey-50 sm:text-xl">
-                Explore more
-              </p>
-              <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-                {additionalBlogPosts.map((post) => (
-                  <Link
-                    reloadDocument
-                    prefetch="intent"
-                    to={`/${post?.slug}?${searchParams.toString()}`}
-                    key={post?.slug}
-                    className="post relative gap-2 sm:gap-4"
-                  >
-                    <figure className="relative h-48 [grid-area:image]">
-                      <img
-                        src={toWebp(post?.coverImage?.url || "")}
-                        className="h-full w-full rounded-xl object-cover shadow"
-                        alt={`Cover for ${post?.title}`}
-                      />
-                      <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
-                    </figure>
-                    <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
-                      {post?.title}
-                    </h3>
-                    <div className="flex items-center space-x-3 [grid-area:author]">
-                      <figure className="flex items-center gap-2">
-                        {post?.authorCollection?.items.length === 1 ? (
-                          <>
+          <Suspense>
+            <Await resolve={additionalBlogPosts}>
+              {(data) => {
+                const additionalPosts = data?.blogPostCollection?.items || [];
+                return additionalPosts.length > 0 ? (
+                  <div className="mt-14 border-t border-t-honey-600 py-6 dark:border-t-night-700 sm:mt-20">
+                    <p className="text-lg font-semibold text-night-900 dark:text-honey-50 sm:text-xl">
+                      Explore more
+                    </p>
+                    <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+                      {additionalPosts.map((post) => (
+                        <Link
+                          reloadDocument
+                          prefetch="intent"
+                          to={`/${post?.slug}?${searchParams.toString()}`}
+                          key={post?.slug}
+                          className="post relative gap-2 sm:gap-4"
+                        >
+                          <figure className="relative h-48 [grid-area:image]">
                             <img
-                              src={toWebp(
-                                getAuthors(post)[0]?.image?.url || ""
-                              )}
-                              className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
-                              alt={`Avatar for ${getAuthors(post)[0]?.name}`}
+                              src={toWebp(post?.coverImage?.url || "")}
+                              className="h-full w-full rounded-xl object-cover shadow"
+                              alt={`Cover for ${post?.title}`}
                             />
-                            <figcaption className="text-xs font-medium text-night-800 dark:text-night-200">
-                              <span>{getAuthors(post)[0]?.name}</span>
-                            </figcaption>
-                          </>
-                        ) : (
-                          <div className="flex -space-x-2">
-                            {authors.map((author) => (
-                              <img
-                                key={author?.name}
-                                src={toWebp(author?.image?.url || "")}
-                                className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
-                                alt={`Avatar for ${author?.name}`}
-                              />
-                            ))}
+                            <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-night-900/10 dark:ring-night-500/10"></div>
+                          </figure>
+                          <h3 className="overflow-hidden text-base font-semibold leading-6 text-night-900 [grid-area:title] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] dark:text-honey-200 sm:text-lg">
+                            {post?.title}
+                          </h3>
+                          <div className="flex items-center space-x-3 [grid-area:author]">
+                            <figure className="flex items-center gap-2">
+                              {post?.authorCollection?.items.length === 1 ? (
+                                <>
+                                  <img
+                                    src={toWebp(
+                                      getAuthors(post)[0]?.image?.url || ""
+                                    )}
+                                    className="h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                                    alt={`Avatar for ${
+                                      getAuthors(post)[0]?.name
+                                    }`}
+                                  />
+                                  <figcaption className="text-xs font-medium text-night-800 dark:text-night-200">
+                                    <span>{getAuthors(post)[0]?.name}</span>
+                                  </figcaption>
+                                </>
+                              ) : (
+                                <div className="flex -space-x-2">
+                                  {authors.map((author) => (
+                                    <img
+                                      key={author?.name}
+                                      src={toWebp(author?.image?.url || "")}
+                                      className="inline-block h-6 w-6 rounded-full bg-honey-400 ring-2 ring-honey-500"
+                                      alt={`Avatar for ${author?.name}`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </figure>
+                            <span className="text-xs font-medium text-night-600 [grid-area:date]">
+                              <span>{formatDate(post?.date)}</span>
+                            </span>
                           </div>
-                        )}
-                      </figure>
-                      <span className="text-xs font-medium text-night-600 [grid-area:date]">
-                        <span>{post.date}</span>
-                      </span>
+                        </Link>
+                      ))}
                     </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
+                  </div>
+                ) : null;
+              }}
+            </Await>
+          </Suspense>
         </div>
         <aside className="col-span-2 col-start-7 hidden lg:block">
           <div className="sticky top-20 px-6">

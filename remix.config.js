@@ -5,7 +5,6 @@ module.exports = {
     unstable_tailwind: true,
     v2_routeConvention: true,
   },
-
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "build/index.js",

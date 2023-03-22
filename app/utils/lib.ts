@@ -2,7 +2,7 @@ import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { GetAllBlogPostsQuery } from "~/graphql/app.generated";
-import { format } from "./date.server";
+import { format } from "date-fns";
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));

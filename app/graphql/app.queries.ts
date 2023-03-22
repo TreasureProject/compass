@@ -94,7 +94,7 @@ export const additionalBlogPosts = gql`
   query additionalBlogPosts($preview: Boolean!, $categories: [String!]!) {
     blogPostCollection(
       where: { category_contains_some: $categories }
-      limit: 6
+      limit: 3
       preview: $preview
     ) {
       items {
