@@ -223,20 +223,25 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <footer className="container mt-8 lg:mt-20">
         <div className="flex grid-cols-5 flex-col gap-6 xl:grid">
-          <div className="flex xl:col-span-3">
-            <Card
-              title="Build with Treasure"
-              description="Apply to become an official Treasure Game Partner to supercharge your game."
-              image={Card1}
-            >
+          <div className="relative flex flex-col items-stretch justify-between overflow-hidden rounded-2.5xl border-2 border-honey-300 bg-[linear-gradient(to_right,#101827ed_30%,#10182790),url('/img/bg-hero.jpg')] bg-cover bg-center bg-no-repeat p-6 dark:border-night-800 sm:p-10 xl:col-span-3">
+            <div className="space-y-2.5">
+              <p className="text-2xl font-bold text-honey-100 lg:text-3xl 2xl:text-4xl">
+                Build with Treasure
+              </p>
+              <p className="text-sm text-night-100 sm:text-base lg:text-lg">
+                Apply to become an official Treasure Game Partner to supercharge
+                your game.
+              </p>
+            </div>
+            <div className="mt-8 flex">
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSeeom1s9R48ZGRXzx5B-MeYahfVa2DoKVBqS8hu63wwLxykpQ/viewform"
                 rel="noopener noreferrer"
-                className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base"
+                className="rounded-md bg-ruby-900 py-4 px-5 text-sm font-bold text-white shadow-sm hover:bg-ruby-1000 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ruby-600 sm:py-4 sm:px-7 sm:text-base"
               >
-                Apply
+                Start building
               </a>
-            </Card>
+            </div>
           </div>
           <div className="flex xl:col-span-2">
             <Card

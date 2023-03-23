@@ -96,9 +96,7 @@ export default function Index() {
           <figure className="relative -inset-y-4 inset-x-0 [grid-area:image] lg:absolute">
             <div className="top-0 left-0 h-full w-full lg:absolute">
               <img
-                src={`${toWebp(
-                  latestPost?.coverImage?.url || ""
-                )}&fit=scale&w=1500&h=700`}
+                src={toWebp(latestPost?.coverImage?.url || "")}
                 className="h-full w-full rounded-xl bg-honey-50 object-cover shadow"
                 alt={latestPost?.title || "Latest blog post"}
               />

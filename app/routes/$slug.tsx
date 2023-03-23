@@ -132,7 +132,6 @@ const VisibleSectionsMarker = ({
     id: string;
     name: string;
     ref: HTMLHeadingElement;
-    offsetRem: number;
   }[];
 }) => {
   const itemHeight = remToPx(2);
@@ -160,7 +159,7 @@ const VisibleSectionsMarker = ({
 export default function BlogPost() {
   const { post, additionalBlogPosts } = useLoaderData<typeof loader>();
   const [headerSections, setHeaderSections] = React.useState<
-    { id: string; name: string; ref: HTMLHeadingElement; offsetRem: number }[]
+    { id: string; name: string; ref: HTMLHeadingElement }[]
   >([]);
   const isHydrated = useHydrated();
   const currentHash = isHydrated ? location.hash.replace("#", "") : "";
@@ -175,9 +174,7 @@ export default function BlogPost() {
     // scroll to the current hash
     const element = document.getElementById(currentHash);
     if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-      });
+      element.scrollIntoView();
     }
   }, [currentHash]);
 
@@ -196,7 +193,6 @@ export default function BlogPost() {
         {
           ref: header,
           id: header.id,
-          offsetRem: 6,
           name: header.innerText,
         },
       ]);
@@ -227,7 +223,7 @@ export default function BlogPost() {
         const bottom =
           (nextSection?.ref.getBoundingClientRect().top ?? Infinity) +
           scrollY -
-          remToPx(nextSection?.offsetRem ?? 0);
+          remToPx(6);
 
         if (
           (top > scrollY && top < scrollY + innerHeight) ||
